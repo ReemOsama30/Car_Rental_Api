@@ -107,8 +107,8 @@ namespace Car_Rental.Controllers
 
 
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<GeneralResponse>> Insert(commentDTO commentDto)
+            [Authorize]
+        public async Task<ActionResult<GeneralResponse>> Insert(InsertCommentDto commentDto)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             ApplicationUser user = userRepository.GetById(userId);
@@ -116,13 +116,13 @@ namespace Car_Rental.Controllers
             if (ModelState.IsValid)
             {
                 Comments comments = new Comments();
-
                 comments.Text = commentDto.Text;
                 comments.Rating = commentDto.Rating;
-  
                 comments.CarId = commentDto.CarId;
+                comments.userId = userId;
                 commentRepository.Insert(comments);
                 commentRepository.save();
+                comments.userId = userId;
 
                 // await commentHub.Clients.All.SendAsync("NewComment", commentDto.Text, commentDto.CarId, commentDto.Rating);
                 return new GeneralResponse { IsPass = true, Message = "Comment inserted successfully" };
