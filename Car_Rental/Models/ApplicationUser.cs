@@ -5,7 +5,7 @@ namespace Car_Rental.Models
 {
     public class ApplicationUser : IdentityUser, ISoftDeletable
     {
-        public string Name { get; set; }
+       
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
         public ICollection<Rental>? rentals { set; get; }
