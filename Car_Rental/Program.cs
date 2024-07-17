@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Car_Rental.MyHub;
 
 namespace Car_Rental
 {
@@ -67,6 +68,7 @@ namespace Car_Rental
             {
                 options.AddPolicy("ADMIN", policy => policy.RequireRole("ADMIN"));
             });
+            builder.Services.AddScoped<commentHub>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -194,8 +196,8 @@ namespace Car_Rental
             app.UseCors("MyPolicy");
             app.UseAuthorization();
             app.UseAuthorization();
-    
 
+            app.MapHub<commentHub>("/commentHub");
             app.MapControllers();
 
             app.Run();

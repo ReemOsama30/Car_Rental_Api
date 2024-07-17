@@ -1,8 +1,9 @@
 ﻿using Car_Rental.DTOs;
 using Car_Rental.Models;
-
+using Car_Rental.MyHub;
 using Car_Rental.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
@@ -16,15 +17,16 @@ namespace Car_Rental.Controllers
         private readonly ICommentRepository commentRepository;
         private readonly IcarRepository carRepository;
         private readonly IUserRepository userRepository;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly IHubContext<commentHub> commentHub;
 
-        // private readonly commentHub commentHub;
-
-        public CommentController(ICommentRepository commentRepository, IcarRepository carRepository, IUserRepository userRepository)
+        public CommentController(ICommentRepository commentRepository, IcarRepository carRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IHubContext<commentHub> commentHub)
         {
             this.commentRepository = commentRepository;
             this.carRepository = carRepository;
             this.userRepository = userRepository;
-            //  this.commentHub = commentHub;
+            this.userManager = userManager;
+            this.commentHub = commentHub;
         }
 
         [HttpGet]
@@ -107,27 +109,28 @@ namespace Car_Rental.Controllers
 
 
         [HttpPost]
-            [Authorize]
+   //   [Authorize]
         public async Task<ActionResult<GeneralResponse>> Insert(InsertCommentDto commentDto)
         {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ApplicationUser user = userRepository.GetById(userId);
+            //var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //ApplicationUser user = userRepository.GetById(userId);
+        //    var Current_User = await userManager.GetUserAsync(User);
 
-            if (ModelState.IsValid)
-            {
+
+         
                 Comments comments = new Comments();
                 comments.Text = commentDto.Text;
                 comments.Rating = commentDto.Rating;
                 comments.CarId = commentDto.CarId;
-                comments.userId = userId;
+                comments.userId =commentDto.userId;
                 commentRepository.Insert(comments);
                 commentRepository.save();
-                comments.userId = userId;
+                
 
-                // await commentHub.Clients.All.SendAsync("NewComment", commentDto.Text, commentDto.CarId, commentDto.Rating);
+              await commentHub.Clients.All.SendAsync("NewComment", commentDto.Text, commentDto.CarId, commentDto.Rating,commentDto.userId);
                 return new GeneralResponse { IsPass = true, Message = "Comment inserted successfully" };
 
-            }
+            
             return BadRequest(ModelState);
         }
 

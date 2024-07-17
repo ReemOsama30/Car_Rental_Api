@@ -1,48 +1,49 @@
-﻿//using Car_Rental.Models;
-//using Car_Rental.Repository;
-//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.SignalR;
+﻿using Car_Rental.Models;
+using Car_Rental.Repository;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 
-//namespace Car_Rental.MyHub
-//{
-//    public class commentHub : Hub
-//    {
-//        private readonly ICommentRepository commentRepository;
-     
-//        private readonly UserManager<ApplicationUser> userManager;
+namespace Car_Rental.MyHub
+{
+    public class commentHub : Hub
+    {
+        private readonly ICommentRepository commentRepository;
 
-//        public commentHub(ICommentRepository commentRepository,UserManager<ApplicationUser> userManager)
-//        {
-//            this.commentRepository = commentRepository;
-          
-//            this.userManager = userManager;
-//        }
-//        public async Task NewComment(string text, int carID, int rating)
-//        {
-//            //save db
-//            //var user = await userManager.GetUserAsync(Context.User);
-//            //string userName = user.UserName;
-//            //notify clients
+        private readonly UserManager<ApplicationUser> userManager;
 
-//            Comments comments = new Comments
-//            {
-//                Text = text,
-//                CarId = carID,
-//              //  applicationUser = user,
-//                Rating = rating
-//            };
-//            commentRepository.Insert(comments);
-//            commentRepository.save();
+        public commentHub(ICommentRepository commentRepository, UserManager<ApplicationUser> userManager)
+        {
+            this.commentRepository = commentRepository;
 
-//            Clients.All.SendAsync("ReciveNewComment", text, carID, rating).Wait();
-//        }
-//        //public override Task OnConnectedAsync()
-//        //{
+            this.userManager = userManager;
+        }
+        public async Task NewComment(string text, int carID, int rating,string userID)
+        {
+            //save db
+            //var user = await userManager.GetUserAsync(Context.User);
+            //string userName = user.UserName;
+            //notify clients
 
-//        //    string user = Context.User.Identity.Name;
-//        //    Clients.All.SendAsync("newUser", user, Context.ConnectionId);
+            Comments comments = new Comments
+            {
+                Text = text,
+                CarId = carID,
+                userId=userID,
+                //  applicationUser = user,
+                Rating = rating
+            };
+            commentRepository.Insert(comments);
+            commentRepository.save();
 
-//        //    return base.OnConnectedAsync();
-//        //}
-//    }
-//}
+            Clients.All.SendAsync("ReciveNewComment", text, carID, rating,userID).Wait();
+        }
+        //public override Task OnConnectedAsync()
+        //{
+
+        //    string user = Context.User.Identity.Name;
+        //    Clients.All.SendAsync("newUser", user, Context.ConnectionId);
+
+        //    return base.OnConnectedAsync();
+        //}
+    }
+}
